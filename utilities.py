@@ -6,6 +6,7 @@ import requests
 import xmltodict
 from math import isnan
 from geopy import distance
+import config
 
 # def create_data_dictionary(url = 'https://hydroportal.cuahsi.org/Snotel/cuahsi_1_1.asmx?WSDL', 
 #                            index_vals = ['name']):
@@ -155,7 +156,8 @@ def get_geo_info(lat, lng):
        longitude'''
     url = 'https://maps.googleapis.com/maps/api/geocode/json'
     params = {'latlng': f"{lat},{lng}", 
-            'key': 'AIzaSyDTvlscefKF2uimb8dPf0eF5Ia4vKGSjgY', 
+            #'key': 'AIzaSyDTvlscefKF2uimb8dPf0eF5Ia4vKGSjgY', 
+            'key': api_key,
             'result_type': 'country|administrative_area_level_1|administrative_area_level_2'
     }
 
