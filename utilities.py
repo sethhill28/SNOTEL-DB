@@ -156,7 +156,6 @@ def get_geo_info(lat, lng):
        longitude'''
     url = 'https://maps.googleapis.com/maps/api/geocode/json'
     params = {'latlng': f"{lat},{lng}", 
-            #'key': 'AIzaSyDTvlscefKF2uimb8dPf0eF5Ia4vKGSjgY', 
             'key': api_key,
             'result_type': 'country|administrative_area_level_1|administrative_area_level_2'
     }
