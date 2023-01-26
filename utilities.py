@@ -1,39 +1,44 @@
 import pandas as pd
-#import ulmo
 import time
 from numpy import nan
 import requests
 import xmltodict
 from math import isnan
 from geopy import distance
-import config
+from suds.client import Client
+#import config
 
-# def create_data_dictionary(url = 'https://hydroportal.cuahsi.org/Snotel/cuahsi_1_1.asmx?WSDL', 
-#                            index_vals = ['name']):
+def get_df(method_name, 
+           url = 'https://wcc.sc.egov.usda.gov/awdbWebService/services?WSDL'):
+    '''Creates dataframe for the getElements method or getUnits method used for 
+    creating data dictionary'''
+    
+    client = Client(url)
+    if method_name == 'getElements':
+        result = client.service.getElements()
+    elif method_name == 'getUnits':
+        result = client.service.getUnits()
+    else:
+        print("Unaccepted method name, please enter 'getElements' or 'getUnits'")
+        return
+    data = [Client.dict(suds_object) for suds_object in result]
+    df = pd.DataFrame(data)
+    return(df)
 
-#     '''Creates a data dictionary by pulling variable info'''
-#     info = ulmo.cuahsi.wof.get_variable_info(url)
+def create_data_dictionary(url = 'https://wcc.sc.egov.usda.gov/awdbWebService/services?WSDL'):
 
-#     # variable info for all variables
-#     dfs = []
-#     for key in list(info.keys()):
-#         df = pd.DataFrame(info[key])
-#         df['Variable'] = key
-#         dfs.append(df)
-#     stacked_df = pd.concat(dfs)
+    '''Creates a data dictionary by pulling variable info'''
+    
+    elements = get_df(method_name = 'getElements')
+    units = get_df(method_name='getUnits')
 
-#     # filter for only indices required
-#     filtered_df = stacked_df[stacked_df.index.isin(index_vals)].copy()
-
-#     # data frame based off dictionary in time column
-#     time_df = stacked_df[stacked_df.index.isin(['units'])]
-#     time_df = pd.json_normalize(time_df['time'])
-
-#     # modify time column to single value
-#     filtered_df.loc[:, 'time'] = time_df['name'].values
-#     filtered_df.reset_index(drop=True, inplace=True)
-
-#     return filtered_df
+    df = pd.merge(elements, units, left_on='storedUnitCd', right_on = 'unitCd')
+    df.drop(columns=['storedUnitCd', 'unitCd'], inplace=True)
+    mapper = {'elementCd': 'elementCd', 
+            'name_x': 'element_name', 
+            'name_y': 'units'}
+    df.rename(columns=mapper, inplace=True)
+    return(df)
 
 # def get_station_locations(url = 'https://hydroportal.cuahsi.org/Snotel/cuahsi_1_1.asmx?WSDL', 
 #                           return_missing_locations = False):
@@ -209,3 +214,6 @@ def n_closest(data, ref_point, n, units):
             return
         distances.append(calc_distance)
     return sorted(distances)[:n]
+
+df = create_data_dictionary()
+print(df)
