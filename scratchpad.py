@@ -2,43 +2,21 @@ from suds.client import Client
 import xmltodict
 import pandas as pd
 
-#url = 'https://hydroportal.cuahsi.org/Snotel/cuahsi_1_1.asmx?WSDL'
+url = 'https://wcc.sc.egov.usda.gov/awdbWebService/services?WSDL'
+client = Client(url)
 
+result = client.service.getStations()
+#print(result)
 
-def get_df(method_name, 
-           url = 'https://wcc.sc.egov.usda.gov/awdbWebService/services?WSDL'):
-    '''Creates dataframe for the getElements method or getUnits method used for 
-    creating data dictionary'''
-    
+def get_snotel_stations(url='https://wcc.sc.egov.usda.gov/awdbWebService/services?WSDL'):
+    '''Returns a list of all SNOTEL stations'''
     client = Client(url)
-    if method_name == 'getElements':
-        result = client.service.getElements()
-    elif method_name == 'getUnits':
-        result = client.service.getUnits()
-    else:
-        print("Unaccepted method name, please enter 'getElements' or 'getUnits'")
-        return
-    data = [Client.dict(suds_object) for suds_object in result]
-    df = pd.DataFrame(data)
-    return(df)
+    result = client.service.getStations()
+    return(result)
 
-def create_data_dictionary(url = 'https://wcc.sc.egov.usda.gov/awdbWebService/services?WSDL'):
+stations = get_snotel_stations()
 
-    '''Creates a data dictionary by pulling variable info'''
-    
-    elements = get_df(method_name = 'getElements')
-    units = get_df(method_name='getUnits')
+station = stations[0]
 
-    df = pd.merge(elements, units, left_on='storedUnitCd', right_on = 'unitCd')
-    df.drop(columns=['storedUnitCd', 'unitCd'], inplace=True)
-    mapper = {'elementCd': 'elementCd', 
-            'name_x': 'element_name', 
-            'name_y': 'units'}
-    df.rename(columns=mapper, inplace=True)
-    return(df)
-
-df = create_data_dictionary()
-
-df.to_csv('data-dictionary.csv')
-
-
+result = client.service.getStationMetadata(station)
+print(result)

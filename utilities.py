@@ -6,7 +6,7 @@ import xmltodict
 from math import isnan
 from geopy import distance
 from suds.client import Client
-#import config
+import config
 
 def get_df(method_name, 
            url = 'https://wcc.sc.egov.usda.gov/awdbWebService/services?WSDL'):
@@ -39,6 +39,12 @@ def create_data_dictionary(url = 'https://wcc.sc.egov.usda.gov/awdbWebService/se
             'name_y': 'units'}
     df.rename(columns=mapper, inplace=True)
     return(df)
+
+def get_snotel_stations(url='https://wcc.sc.egov.usda.gov/awdbWebService/services?WSDL'):
+    '''Returns a list of all SNOTEL stations'''
+    client = Client(url)
+    result = client.service.getStations()
+    return(result)
 
 # def get_station_locations(url = 'https://hydroportal.cuahsi.org/Snotel/cuahsi_1_1.asmx?WSDL', 
 #                           return_missing_locations = False):
