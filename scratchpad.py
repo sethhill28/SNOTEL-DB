@@ -9,54 +9,28 @@ from suds.client import Client
 import config
 from utilities import *
 
-# url = 'https://wcc.sc.egov.usda.gov/awdbWebService/services?WSDL'
-# client = Client(url)
-# stations = get_snotel_stations()
-# result = client.service.getStationMetadataMultiple(stations)
-# dfs = []
-# for station in result:
-#     data = Client.dict(station)
-#     for key in data.keys():
-#         data[key] = [data[key]]
-#     df = pd.DataFrame(data)
-#     dfs.append(df)
-# final_df = pd.concat(dfs)
-# final_df.to_csv('station-meta.csv')
-# print(final_df)
 
-def get_station_metadata(url='https://wcc.sc.egov.usda.gov/awdbWebService/services?WSDL',
-                        stations = get_snotel_stations()):
-    '''Returns a DataFrame containing the metadata for a given list of SNOTEL 
-    stations (defaults to all)'''
-    client = Client(url)
-    result = client.service.getStationMetadataMultiple(stations)
-    dfs = []
-    for station in result:
-        data = Client.dict(station)
-        for key in data.keys():
-             # convert each value to a list
-            data[key] = [data[key]]
-        df = pd.DataFrame(data)
-        dfs.append(df)
-    stacked_df = pd.concat(dfs)
-    return(stacked_df)
-
-
-df = get_station_metadata()
-print(df)
-#print(result[0])
-#print(type(result[0]))
-#stations = get_station_metadata()
-#stations.to_csv('station-meta-data.csv')
 #print(station)
-
-# result=client.service.getHourlyData(stationTriplets='302:OR:SNTL', 
+# url='https://wcc.sc.egov.usda.gov/awdbWebService/services?WSDL'
+# client = Client(url)
+# result=client.service.getHourlyData(stationTriplets='415:CO:SNTL', 
 #                                     elementCd='PREC', 
 #                                     ordinal=1, 
-#                                     beginDate='2010-01-01', 
-#                                     endDate='2010-01-31')
+#                                     beginDate='1978-01-01', 
+#                                     endDate='1978-12-31')
 
-#print(result)
+# print(result)
 
-#result = client.service.getStationMetadataMultiple
+def get_stations(url='https://wcc.sc.egov.usda.gov/awdbWebService/services?WSDL', 
+                 network_codes = ['SNTL']):
+
+    '''Returns a list of all stations within a network given a list of 
+    network codes'''
+    client = Client(url)
+    result = client.service.getStations(networkCds=network_codes)
+    return(result)
+
+stations = get_stations()
+print(len(stations))
+#print(stations)
 

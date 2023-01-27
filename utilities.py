@@ -39,23 +39,24 @@ def create_data_dictionary(url = 'https://wcc.sc.egov.usda.gov/awdbWebService/se
     df.rename(columns=mapper, inplace=True)
     return(df)
 
-def get_snotel_stations(url='https://wcc.sc.egov.usda.gov/awdbWebService/services?WSDL'):
-
-    '''Returns a list of all SNOTEL stations'''
+def get_stations(url='https://wcc.sc.egov.usda.gov/awdbWebService/services?WSDL', 
+                 network_codes = ['SNTL']):
+    '''Returns a list of all stations within a list of network codes'''
     client = Client(url)
-    result = client.service.getStations()
+    result = client.service.getStations(networkCds=network_codes)
     return(result)
 
-def get_station_metadata(url='https://wcc.sc.egov.usda.gov/awdbWebService/services?WSDL'):
-    '''Returns a DataFrame containing the metadata for all SNOTEL stations'''
+def get_station_metadata(url='https://wcc.sc.egov.usda.gov/awdbWebService/services?WSDL',
+                         stations = get_snotel_stations()):
+    '''Returns a DataFrame containing the metadata for a given list of SNOTEL 
+    stations (defaults to all)'''
     client = Client(url)
-    stations = get_snotel_stations()
+    result = client.service.getStationMetadataMultiple(stations)
     dfs = []
-    for station in stations:
-        result = client.service.getStationMetadata(station)
-        data = Client.dict(result)
-        # convert each value to a list
+    for station in result:
+        data = Client.dict(station)
         for key in data.keys():
+             # convert each value to a list
             data[key] = [data[key]]
         df = pd.DataFrame(data)
         dfs.append(df)
