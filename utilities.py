@@ -47,7 +47,7 @@ def get_stations(url='https://wcc.sc.egov.usda.gov/awdbWebService/services?WSDL'
     return(result)
 
 def get_station_metadata(url='https://wcc.sc.egov.usda.gov/awdbWebService/services?WSDL',
-                         stations = get_snotel_stations()):
+                         stations = get_stations(network_codes = ['SNTL'])):
     '''Returns a DataFrame containing the metadata for a given list of SNOTEL 
     stations (defaults to all)'''
     client = Client(url)
