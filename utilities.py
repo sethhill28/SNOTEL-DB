@@ -10,9 +10,9 @@ import config
 
 def get_df(method_name, 
            url = 'https://wcc.sc.egov.usda.gov/awdbWebService/services?WSDL'):
+    
     '''Creates dataframe for the getElements method or getUnits method used for 
     creating data dictionary'''
-    
     client = Client(url)
     if method_name == 'getElements':
         result = client.service.getElements()
@@ -26,9 +26,8 @@ def get_df(method_name,
     return(df)
 
 def create_data_dictionary(url = 'https://wcc.sc.egov.usda.gov/awdbWebService/services?WSDL'):
-
-    '''Creates a data dictionary by pulling variable info'''
     
+    '''Creates a data dictionary by pulling variable info'''
     elements = get_df(method_name = 'getElements')
     units = get_df(method_name='getUnits')
 
@@ -41,66 +40,27 @@ def create_data_dictionary(url = 'https://wcc.sc.egov.usda.gov/awdbWebService/se
     return(df)
 
 def get_snotel_stations(url='https://wcc.sc.egov.usda.gov/awdbWebService/services?WSDL'):
+
     '''Returns a list of all SNOTEL stations'''
     client = Client(url)
     result = client.service.getStations()
     return(result)
 
-# def get_station_locations(url = 'https://hydroportal.cuahsi.org/Snotel/cuahsi_1_1.asmx?WSDL', 
-#                           return_missing_locations = False):
-#     '''pulls location of every SNOTEL site when available'''
-#     codes = []
-#     names = []
-#     networks = []
-#     latitudes = []
-#     longitudes = []
-#     missing_sites = []
-#     df = pd.DataFrame()
-
-#     response = ulmo.cuahsi.wof.get_sites(url)
-#     sites = list(response.keys())
-#     start = time.time()
-
-#     for site in sites:
-#         site_info = ulmo.cuahsi.wof.get_site_info(url, site)
-#         code_test = 'code' in site_info.keys()
-#         name_test = 'name' in site_info.keys()
-#         network_test = 'network' in site_info.keys()
-#         location_test = 'location' in site_info.keys()
-#         if location_test:
-#             latitude_test = 'latitude' in site_info['location'].keys()
-#             longitude_test = 'longitude' in site_info['location'].keys()
-        
-#         if (code_test and name_test and network_test and location_test 
-#             and latitude_test and longitude_test):
-#             codes.append(site_info['code'])
-#             names.append(site_info['name'])
-#             networks.append(site_info['network'])
-#             latitudes.append(site_info['location']['latitude'])
-#             longitudes.append(site_info['location']['longitude'])
-#         else:
-#             missing_sites.append(site)
-#             codes.append(nan)
-#             names.append(nan)
-#             networks.append(nan)
-#             latitudes.append(nan)
-#             longitudes.append(nan)
-
-#     df['code'] = codes
-#     df['name'] = names
-#     df['network'] = networks
-#     df['latitiude'] = latitudes
-#     df['longitude'] = longitudes
-#     end = time.time()
-#     print('Pulled all available locations in', round(end - start, 4), 'seconds')
-#     print(f'Location unavaialble for the following {len(missing_sites)} stations: ')
-#     for station in missing_sites:
-#         print(station)
-#     df.dropna(inplace=True)
-#     result =  [df, ]
-#     if return_missing_locations:
-#         result.append(missing_sites)
-#     return result
+def get_station_metadata(url='https://wcc.sc.egov.usda.gov/awdbWebService/services?WSDL'):
+    '''Returns a DataFrame containing the metadata for all SNOTEL stations'''
+    client = Client(url)
+    stations = get_snotel_stations()
+    dfs = []
+    for station in stations:
+        result = client.service.getStationMetadata(station)
+        data = Client.dict(result)
+        # convert each value to a list
+        for key in data.keys():
+            data[key] = [data[key]]
+        df = pd.DataFrame(data)
+        dfs.append(df)
+    stacked_df = pd.concat(dfs)
+    return(stacked_df)
 
 def get_ski_area_info(url='https://skimap.org/SkiAreas/index.xml', 
                       return_missing_geo_info = False, 
@@ -220,6 +180,3 @@ def n_closest(data, ref_point, n, units):
             return
         distances.append(calc_distance)
     return sorted(distances)[:n]
-
-df = create_data_dictionary()
-print(df)
