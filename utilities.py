@@ -72,7 +72,6 @@ def get_ski_area_info(url='https://skimap.org/SkiAreas/index.xml',
     df = pd.read_xml(response.text)
     lats = []
     lngs = []
-    #regions = []
     locations = d['skiAreas']['skiArea']
     missing_geo_info = []
     for location in locations:
