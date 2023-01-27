@@ -63,26 +63,18 @@ def get_station_metadata(url='https://wcc.sc.egov.usda.gov/awdbWebService/servic
     return(stacked_df)
 
 def get_ski_area_info(url='https://skimap.org/SkiAreas/index.xml', 
-                      return_missing_geo_info = False, 
-                      return_missing_region_info = False):
+                      return_missing_geo_info = False):
+   
     '''returns a dataframe containing ski area information and any ski areas 
        whose geographic info is missing when return_missing_geo_info = True'''
-
     response = requests.get(url)
     d = xmltodict.parse(response.text)
     df = pd.read_xml(response.text)
-
     lats = []
     lngs = []
-    regions = []
+    #regions = []
     locations = d['skiAreas']['skiArea']
     missing_geo_info = []
-    missing_region_info = []
-    # custom map for ski areas in multiple regions
-    custom_map = {'Arlberg (St Anton, St Christoph, Stuben, Lech, ​Zürs, Warth, ​Schröcken)': '346', 
-                'Silvretta Arena (Ischgl/Samnaun)': '344', 
-                'Matterhorn (Zermatt/​Breuil-Cervinia/​Valtournenche)': '387', 
-                'Les Portes du Soleil (Morzine, Avoriaz, ​Les Gets, ​Châtel, ​Morgins, ​Champéry)': '381'}
     for location in locations:
         # get lat and lng
         geo_ref_test = 'georeferencing' in location.keys()
@@ -96,29 +88,13 @@ def get_ski_area_info(url='https://skimap.org/SkiAreas/index.xml',
             missing_geo_info.append(location['name'])
             lats.append(nan)
             lngs.append(nan)
-            
-        # get regional info
-        name = location['name']
-        if location['regions']:
-            if name in custom_map.keys():
-                regions.append(custom_map[name])
-            else:
-                regions.append(location['regions']['region']['@id'])
-        else:
-            missing_region_info.append(name)
-            regions.append(nan)
-    
     df['latitude'] = lats
     df['longitude'] = lngs
-    df['region'] = regions
-     # drop non-needed columns
-    df.drop(columns=['georeferencing', 'regions'], inplace=True)
-    
+    # drop un-needed columns
+    df.drop(columns=['georeferencing', 'regions', 'id'], inplace=True)
     result = [df, ]
     if return_missing_geo_info:
         result.append(missing_geo_info)
-    if return_missing_region_info:
-        result.append(missing_region_info)
     return result
 
 def get_geo_info(lat, lng):
