@@ -118,6 +118,8 @@ def get_geo_info(lat, lng):
         d[type] = names
 
     df = pd.DataFrame(d)
+    df['latitude'] = lat
+    df['longitude'] = lng
     return df 
 
 def get_ski_area_geo_info_hist():
