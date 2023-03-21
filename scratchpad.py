@@ -13,5 +13,6 @@ import config
 
 # print(result)
 
-df = get_df('some_element')
+df = create_data_dictionary()
+df.to_csv('Data/data-dictionary.csv')
 
