@@ -7,6 +7,9 @@ from math import isnan
 from geopy import distance
 from suds.client import Client
 import config
+import logging as log
+
+log.basicConfig(level=log.INFO)
 
 def get_df(method_name, 
            url = 'https://wcc.sc.egov.usda.gov/awdbWebService/services?WSDL'):
@@ -19,7 +22,8 @@ def get_df(method_name,
     elif method_name == 'getUnits':
         result = client.service.getUnits()
     else:
-        print("Unaccepted method name, please enter 'getElements' or 'getUnits'")
+        #print("Unaccepted method name, please enter 'getElements' or 'getUnits'")
+        log.info("Unaccepted method name, please enter 'getElements' or 'getUnits'")
         return
     data = [Client.dict(suds_object) for suds_object in result]
     df = pd.DataFrame(data)
@@ -140,7 +144,8 @@ def get_ski_area_geo_info_hist():
             df = get_geo_info(lat, lng)
             dfs.append(df)
         counter += 1
-        print(round(counter / len(d.keys()) * 100, 2), "percent done")
+        #print(round(counter / len(d.keys()) * 100, 2), "percent done")
+        log.info(round(counter / len(d.keys()) * 100, 2), "percent done")
     stacked_df = pd.concat(dfs)
     return stacked_df
 
@@ -154,7 +159,8 @@ def n_closest(data, ref_point, n, units):
         elif units == 'km':
             calc_distance = distance.distance(ref_point, point).km
         else:
-            print(f"'{units}' is not an accepted argument, please choose between 'miles' or 'km'")
+            #print(f"'{units}' is not an accepted argument, please choose between 'miles' or 'km'")
+            log.info(f"'{units}' is not an accepted argument, please choose between 'miles' or 'km'")
             return
         distances.append(calc_distance)
     return sorted(distances)[:n]
