@@ -61,11 +61,6 @@ x-airflow-common:
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
     AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
     AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session'
-    AIRFLOW__SMTP__SMTP_USER: sethhill28@gmail.com # SMTP user (sending address)
-    AIRFLOW__SMTP__SMTP_PASSWORD: ugemnbpblaipmial
-    AIRFLOW__SMTP__SMTP_HOST: smtp.gmail.com #default SMTP(secure mail transfer protocol) host
-    AIRFLOW__SMTP__SMTP_PORT: 587
-    AIRFLOW__SMTP__SMTP_MAIL_FROM: Airflow
     # _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
   volumes:
     - ${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
